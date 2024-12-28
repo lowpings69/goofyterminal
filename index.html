@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoofyTerminal by lowpings</title>
+    <style>
+        * {
+            font-family: monospace;
+            font-size: 16px;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-shadow: rgb(0, 0, 0) 2px 2px 1px;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background: url('goofyahhcat.png') no-repeat center center fixed;
+            background-size: cover;
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #loading {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7), ;
+            background-size: cover;
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 1);
+            animation: fadeOut 1s ease-out forwards;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s infinite;
+        }
+        #footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: right;
+            padding: 5px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeOut {
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        @font-face {
+            font-family: samsa;
+            src: url(sans.ttf);
+        }
+        #terminal {
+            width: 95%;
+            height: 95%;
+            border: none;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.25);;
+            border-radius: 10px;
+            overflow: auto;
+            padding: 1em;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+        }
+
+        #input-line {
+            display: flex;
+            gap: 5px;
+            font-weight: bold;
+            width: 100%;
+            position: relative;
+            border-radius: 5px;
+            padding: 5px;
+            background-color: rgba(0, 0, 0, 0.25);
+        }
+
+        #input-line label {
+            color: rgba(0, 255, 255);
+            border-radius: 5px;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        #input {
+            flex-grow: 1;
+            border: none;
+            background: none;
+            color: rgb(255, 255, 255);
+            outline: none;
+            caret-color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .green {
+            color: rgb(0, 255, 0); 
+        }
+
+        .yellow {
+            color: rgb(255, 255, 0); 
+        }
+
+        .red {
+            color: rgb(255, 0, 0);
+        }
+
+        .orange {
+            color: rgb(255, 165, 0); 
+        }
+
+        .aqua {
+            color: rgb(0, 255, 255);
+        }
+        .lightgray {
+            color: lightgray;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+    </div>
+    <div id="terminal">
+        <div id="output"></div>
+        <div id="input-line">
+            <label>> </label>
+            <input type="text" id="input" autocomplete="off">
+        </div>
+    </div>
+
+    <script>
+        const outputDiv = document.getElementById('output');
+        const inputField = document.getElementById('input');
+        const loadingDiv = document.getElementById('loading');
+        const loadSound = document.getElementById('loadSound');
+        const soundConfig = {
+            klakson: "sounds/klakson.mp3",
+            goofy: "sounds/goofy.mp3",
+            omg: "sounds/omg.mp3",
+            krutvert: "sounds/krutvert.mp3",
+            wth: "sounds/what-the-hell.mp3",
+            fart: "sounds/fart.mp3",
+            alert: "sounds/trevoga.mp3",
+            telefon: "sounds/telefon.mp3",
+            omagad_poko: "sounds/omg-poco.mp3",
+            poko: "sounds/poco.mp3",
+            your_phone_vzorvetsya: "sounds/hassium.mp3",
+            load: "sounds/telefon.mp3"
+        };
+
+        function appendOutput(text, isHTML = false) {
+            const line = document.createElement('div');
+            if (isHTML) {
+                line.innerHTML = text;
+            } else {
+                line.textContent = text;
+            }
+            outputDiv.appendChild(line);
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
+        
+        function displayWelcomeMessage() {
+            const asciiArt = `
+  ____              __      _____                   _             _ 
+ / ___| ___   ___  / _|_   |_   _|__ _ __ _ __ ___ (_)_ __   __ _| |
+| |  _ / _ \\ / _ \\| |_| | | || |/ _ \\ '__| '_ \` _ \\| | '_ \\ / _\` | |
+| |_| | (_) | (_) |  _| |_| || |  __/ |  | | | | | | | | | | (_| | |
+ \\____|\\___/ \\___/|_|  \\__, ||_|\\___|_|  |_| |_| |_|_|_| |_|\\__,_|_| Bʏ @LᴏᴡPɪɴɢs
+                       |___/                                        
+    `;
+    appendOutput(`<pre><span class="aqua">${asciiArt}</span></pre><span style="color: white">Welcome to the site! Type "help" in text input for available commands.</span><br><br>`, true);
+}
+        function formatText(text) {
+            text = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            text = text.replace(/\~(.*?)\~/g, '<i>$1</i>');
+            text = text.replace(/\*(.*?)\*/g, '<i>$1</i>');
+            text = text.replace(/\_(.*?)\_/g, '<i>$1</i>');
+            text = text.replace(/<color:([#a-zA-Z0-9]+)>(.*?)<\/color>/g, (match, color, content) => {
+                return `<span style="color: ${color};">${content}</span>`;
+            });
+            text = text.replace(/<color:([#a-zA-Z0-9]+)>(.*?)$/g, (match, color, content) => {
+                return `<span style="color: ${color};">${content}`;
+            });
+            return text;
+        }
+        async function getNetworkInfo() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return `IP: ${data.ip}`;
+            } catch {
+                return 'Unable to fetch Public IPv4.';
+            }
+        }
+        async function pingHost(host) {
+            const start = performance.now();
+            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve('timeout'), 10000));
+
+            try {
+                const fetchPromise = fetch(host, { method: 'HEAD', mode: 'no-cors' });
+                const response = await Promise.race([fetchPromise, timeoutPromise]);
+
+                if (response === 'timeout') {
+                    return `<span class="orange">${host} -> timed out</span>`;
+                }
+                const end = performance.now();
+                const pingTime = end - start;
+                if (pingTime < 100) {
+                    return `<span class="green">${host} -> ${pingTime.toFixed(2)} ms</span>`;
+                } else if (pingTime <= 400) {
+                    return `<span class="yellow">${host} -> ${pingTime.toFixed(2)} ms</span>`;
+                } else {
+                    return `<span class="red">${host} -> ${pingTime.toFixed(2)} ms</span>`;
+                }
+            } catch {
+                return `<span class="red">Ping to ${host} failed.</span>`;
+            }
+        }
+        const commands = {
+            help: async () => {
+                appendOutput('Available commands:<br> <span class="lightgray">- help<br>- about<br>- clear (Clear Terminal)<br>- check<br>- ping [url] (Ping the URL)<br>- echo [text] (Formatting text: use **text** and more)<br>- math [formula]<br>- playsound [sound]<br>- omgpoco', true);
+            },
+            about: async () => {
+                displayWelcomeMessage();
+                appendOutput('Visit the github: https://github.com/obaudna228/goofyterminal/', true);
+            },
+            clear: () => {
+                outputDiv.innerHTML = '';
+                displayWelcomeMessage(); 
+            },
+            check: async () => {
+                const info = [
+                    `${navigator.userAgent}`,
+                ];
+
+                const networkInfo = await getNetworkInfo();
+                info.push(networkInfo);
+
+                info.forEach(line => appendOutput(line));
+            },
+            ping: async (args) => {
+                const sites = [
+                    'https://www.google.com',
+                    'https://www.youtube.com',
+                    'https://mail.google.com',
+                    'https://twitter.com',
+                    'https://www.vk.com',
+                    'https://www.spotify.com'
+                ];
+                if (args.length === 0) {
+                    for (const site of sites) {
+                        const pingResult = await pingHost(site);
+                        appendOutput(pingResult, true);
+                    }
+                    appendOutput('<span class="green">Command successfully completed</span>', true);
+                } else {
+                    const site = args[0];
+                    const pingResult = await pingHost(site);
+                    appendOutput(pingResult, true);
+                }
+            },
+            echo: (args) => {
+                const message = args.join(' ');
+                const formattedMessage = formatText(message); 
+                appendOutput(formattedMessage, true);
+            },
+            math: (args) => {
+                const expression = args.join(' ');
+
+                if (!expression) {
+                    appendOutput('<span class="red">Error: No expression provided</span>', true);
+                    return;
+                }
+
+                try {
+                    const result = eval(expression);
+                    if (isNaN(result)) {
+                        appendOutput('<span class="red">Error: Invalid mathematical expression</span>', true);
+                    } else {
+                        appendOutput(`${result}`, true);
+                    }
+                } catch (e) {
+                    appendOutput('<span class="red">Error: Invalid mathematical expression</span>', true);
+                }
+            },
+            playsound: (args) => {
+                if (args.length === 0) {
+                    appendOutput('<span class="red">Error: No sound specified</span>', true);
+                } else {
+                    playSound(args[0]);
+                }
+            },
+            omgpoco: async (args) => {
+                if (args.length < 5) {
+                    appendOutput('<span class="red">Error: Missing arguments</span>', true);
+                    return;
+                }
+
+            const [title, description, timer, limeButtonText, redButtonText] = args;
+            const countdown = parseInt(timer, 10);
+
+            if (isNaN(countdown) || countdown <= 0) {
+                appendOutput('<span class="red">Error: Invalid timer value argument</span>', true);
+                return;
+            }
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = '#222222';
+            overlay.style.color = 'white';
+            overlay.style.display = 'flex';
+            overlay.style.flexDirection = 'column';
+            overlay.style.justifyContent = 'center';
+            overlay.style.alignItems = 'center';
+            overlay.style.zIndex = '1';
+            overlay.style.textShadow = 'none';
+            const titleElement = document.createElement('p');
+            titleElement.textContent = title;
+            titleElement.style.fontFamily = 'samsa';
+            titleElement.style.fontSize = '32px';
+            titleElement.style.textShadow = 'none';
+            titleElement.style.zIndex = '1000';
+            const descriptionElement = document.createElement('p');
+            descriptionElement.textContent = description;
+            descriptionElement.style.fontFamily = 'samsa';
+            descriptionElement.style.fontSize = '24px';
+            descriptionElement.style.textShadow = 'none';
+            descriptionElement.style.zIndex = '1000';
+            const timerElement = document.createElement('p');
+            timerElement.textContent = ``;
+            timerElement.style.fontFamily = 'samsa';
+            timerElement.style.fontSize = '42px';
+            timerElement.style.textShadow = 'none';
+            timerElement.style.zIndex = '1000';
+            overlay.appendChild(titleElement);
+            overlay.appendChild(descriptionElement);
+            overlay.appendChild(timerElement);
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.style.marginTop = '20px';
+            buttonsContainer.style.display = 'flex';
+            buttonsContainer.style.gap = '10px';
+            buttonsContainer.style.textShadow = 'none';
+            const limeButton = document.createElement('button');
+            limeButton.textContent = limeButtonText;
+            limeButton.style.backgroundColor = 'lime';
+            limeButton.style.color = 'black';
+            limeButton.style.padding = '5px 50px';
+            limeButton.style.fontFamily = 'samsa';
+            limeButton.style.zIndex = '1000';
+            limeButton.style.fontSize = '25px';
+            limeButton.style.border = 'none';
+            limeButton.style.textShadow = 'none';
+            limeButton.style.borderRadius = '5em';
+            limeButton.style.cursor = 'pointer';
+            const redButton = document.createElement('button');
+            redButton.textContent = redButtonText;
+            redButton.style.backgroundColor = 'red';
+            redButton.style.color = 'black';
+            redButton.style.padding = '10px 50px';
+            redButton.style.fontFamily = 'samsa';
+            redButton.style.fontSize = '25px';
+            redButton.style.zIndex = '1000';
+            redButton.style.border = 'none';
+            redButton.style.borderRadius = '5em';
+            redButton.style.cursor = 'pointer';
+            redButton.style.textShadow = 'none';
+            buttonsContainer.appendChild(limeButton);
+            buttonsContainer.appendChild(redButton);
+            overlay.appendChild(buttonsContainer);
+            function getRandomColor() {const letters = '0123456789ABCDEF';let color = '#';for (let i = 0; i < 6; i++) {color += letters[Math.floor(Math.random() * 16)];}return color;}
+            limeButton.addEventListener('click', openJumpingWindow);
+            redButton.addEventListener('click', openJumpingWindow);
+            function openJumpingWindow() {const newWindow = window.open('hi', '_blank', 'width=200,height=200,scrollbars=yes');const randomSymbols = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:,.<>?/~`';let randomText = '';for (let i = 0; i < 50000; i++) {const randomIndex = Math.floor(Math.random() * randomSymbols.length);randomText += randomSymbols[randomIndex];}newWindow.document.write(`<p>МАМА ТВОЯ ${randomText}</p>`); const moveWindow = setInterval(() => {const xPos = Math.random() * (window.innerWidth);   const yPos = Math.random() * (window.innerHeight);  newWindow.moveTo(xPos, yPos);}, 1);}
+            document.body.appendChild(overlay);
+            let remainingTime = countdown;
+            const soundPath = 'sounds/hassium.mp3';
+            const audio = new Audio(soundPath);
+            audio.loop = true;
+            audio.play().catch((error) => console.error(`Error playing sound: ${error.message}`));
+            const timerInterval = setInterval(() => {
+                remainingTime--;
+                timerElement.textContent = `${remainingTime}`;
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    audio.pause();
+                    audio.currentTime = 0; 
+                    openJumpingWindow();
+                }
+            }, 1000);
+        }
+
+        };
+        function playSound(soundId) {
+            const soundPath = soundConfig[soundId];
+            if (soundPath) {
+                const audio = new Audio(soundPath);
+                audio.play()
+                    .then(() => appendOutput(`<span class="green">Playing sound: ${soundId}</span>`, true))
+                    .catch((error) => appendOutput(`<span class="red">Error: Could not play sound "${soundId}" (${error.message})</span>`, true));
+            } else {
+                appendOutput(`<span class="red">Error: Sound "${soundId}" not found in configuration</span>`, true);
+            }
+        }
+        function processCommand(commandLine) {
+            const trimmedCommandLine = commandLine.trim();
+
+            if (trimmedCommandLine === '') {
+                appendOutput('<span class="red">Error: Cannot be empty</span>', true);
+                return;
+            }
+
+            const [command, ...args] = trimmedCommandLine.split(' ');
+
+            if (commands[command]) {
+                if (typeof commands[command] === 'function') {
+                    commands[command](args);
+                } else {
+                    appendOutput(commands[command]);
+                }
+            } else {
+                appendOutput(`<span class="red">${command} not found</span>`, true);
+            }
+        }
+        inputField.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                const command = inputField.value.trim();
+                appendOutput(`> ${command}`);
+                processCommand(command);
+                inputField.value = '';
+            }
+        });
+
+        window.onload = () => {
+            setTimeout(() => {
+                loadingDiv.style.display = 'none'; 
+                document.getElementById('terminal').style.visibility = 'visible'; 
+            }, 1000); 
+        }
+
+        displayWelcomeMessage();
+        setTimeout(() => {
+            const soundPath = soundConfig['load'];
+            if (soundPath) {
+                const audio = new Audio(soundPath);
+                audio.play().catch((error) => console.error(`Error playing sound: ${error.message}`));
+        }
+        }, 500); 
+    </script>
+</body>
+</html>
